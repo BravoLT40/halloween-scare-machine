@@ -6,7 +6,7 @@ import easygopigo3
 
 RELAY_URL_ON = 'http://127.0.0.1:8088/on'
 RELAY_URL_OFF = 'http://127.0.0.1:8088/off'
-AUDIO_FILE = '/home/pi/ghost_moan_15s.wav'
+AUDIO_FILE = '/home/pi/witch_laugh_10s.wav'
 AUDIO_DEVICE = 'plughw:2,0'
 TRIGGER_DISTANCE_CM = 120.0
 COOLDOWN_SEC = 5.0
@@ -44,15 +44,15 @@ except Exception as e:
     print('Falling back to ultrasonic sensor...')
     ds = gpg.init_ultrasonic_sensor()
 
-# Glowing red eyes in standby
+# Glowing eerie eyes in standby (toxic green / blood red)
 gpg.set_eye_color((255, 0, 0))
 gpg.open_eyes()
 
 print('==================================================')
 print('  HALLOWEEN SCARE MACHINE ARMED AND READY!')
-print('  - Duration: 15 SECONDS per scare')
+print('  - Duration: 10 SECONDS per scare')
 print('  - Light: Tapo TP15 Smart Plug (192.168.1.105)')
-print('  - Audio: Jabra SPEAK 510 USB (Ghostly OOOOOO wail)')
+print('  - Audio: Jabra SPEAK 510 USB (Witch Cackle / Laugh)')
 print('  - Trigger Threshold: < 120 cm')
 print('==================================================')
 
@@ -64,12 +64,12 @@ try:
             dist = 999.0
 
         if 5.0 < dist < TRIGGER_DISTANCE_CM:
-            print(f'>>> TRIGGERED! Distance: {dist:.1f} cm (Starting 15s Ghost Scare) <<<')
+            print(f'>>> TRIGGERED! Distance: {dist:.1f} cm (Starting 10s Witch Scare) <<<')
 
             # 1. Snap spotlight ON
             set_light(True)
 
-            # 2. Play 15-second ghostly OOOOOO wail on Jabra speaker
+            # 2. Play 10-second wicked witch cackle on Jabra speaker
             subprocess.run(['aplay', '-D', AUDIO_DEVICE, '-q', AUDIO_FILE])
 
             # 3. Turn spotlight OFF
