@@ -13,10 +13,14 @@ COOLDOWN_SEC = 5.0
 
 def set_light(state: bool):
     url = RELAY_URL_ON if state else RELAY_URL_OFF
-    try:
-        urllib.request.urlopen(url, timeout=2)
-    except Exception as e:
-        print(f'Light toggle warning: {e}')
+    for attempt in range(3):
+        try:
+            urllib.request.urlopen(url, timeout=2)
+            break
+        except Exception as e:
+            if attempt == 2:
+                print(f'Light toggle warning: {e}')
+            time.sleep(0.2)
 
 # Ensure tapo_relay micro-service is running
 try:
@@ -24,10 +28,9 @@ try:
 except Exception:
     print('Starting Tapo relay micro-service...')
     subprocess.Popen([
-        '/home/pi/.local/bin/uv', 'run', '--python', '3.12',
-        '--with', 'tapo,aiohttp', 'python', '/home/pi/tapo_relay.py'
+        '/home/pi/tapo_env/bin/python', '/home/pi/tapo_relay.py'
     ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    time.sleep(3)
+    time.sleep(2)
 
 # Make sure light starts in OFF state
 set_light(False)
