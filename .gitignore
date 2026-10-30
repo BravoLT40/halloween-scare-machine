@@ -1,0 +1,13 @@
+# Environment and secrets
+.env
+config.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+
+# System
+.DS_Store
+*.swp

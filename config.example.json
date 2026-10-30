@@ -1,0 +1,9 @@
+{
+  "tapo_ip": "192.168.1.105",
+  "tapo_user": "your-email@example.com",
+  "tapo_password": "your-password",
+  "audio_file": "/home/pi/ghost_moan_15s.wav",
+  "audio_device": "plughw:2,0",
+  "trigger_distance_cm": 120.0,
+  "cooldown_sec": 5.0
+}
