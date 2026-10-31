@@ -8,7 +8,7 @@ RELAY_URL_ON = 'http://127.0.0.1:8088/on'
 RELAY_URL_OFF = 'http://127.0.0.1:8088/off'
 AUDIO_FILE = '/home/pi/witch_laugh_10s.wav'
 AUDIO_DEVICE = 'plughw:2,0'
-TRIGGER_DISTANCE_CM = 220.0  # Max sensor detection threshold in cm (~7.2 feet)
+TRIGGER_DISTANCE_CM = 220.0  # Detection threshold in cm (~7.2 feet)
 COOLDOWN_SEC = 5.0          # Seconds to wait after scare finishes
 
 def set_light(state: bool):
@@ -51,48 +51,32 @@ try:
     ds = gpg.init_distance_sensor()
     print('Time-of-Flight distance sensor ACTIVE.', flush=True)
 except Exception as e:
-    print('Falling back to ultrasonic sensor...', flush=True)
-    ds = gpg.init_ultrasonic_sensor()
+    print(f'Distance sensor init warning: {e}', flush=True)
+    ds = None
 
 # Blood red eye glow in standby
 gpg.set_eye_color((255, 0, 0))
 gpg.open_eyes()
 
 print('==================================================', flush=True)
-print('  HALLOWEEN SCARE MACHINE ARMED AND MONITORING!', flush=True)
-print('  - Trigger Threshold: < 150 cm', flush=True)
-print('  - Duration: 10 Seconds (Witch Laugh + Spotlight)', flush=True)
+print('  HALLOWEEN SCARE MACHINE ARMED AND MONITORING!')
+print('  - Trigger Threshold: < 220 cm (~7.2 ft)')
+print('  - Duration: 10 Seconds (Witch Laugh + Spotlight)')
 print('==================================================', flush=True)
 
 last_status_time = 0
-consecutive_errors = 0
 
 try:
     while True:
         try:
+            if ds is None:
+                ds = gpg.init_distance_sensor()
             raw_mm = ds.read_mm()
             dist = raw_mm / 10.0
-        except Exception as e:
-            dist = 0.0
+        except Exception:
+            dist = 300.0  # Default to clear on transient I/O or timeout
 
-        # Auto-recover if sensor gets into locked I/O state
-        if dist <= 0.0 or dist >= 800.0:
-            consecutive_errors += 1
-            if consecutive_errors == 10:
-                print('[WARN] Distance sensor unresponsive or I/O error. Re-initializing...', flush=True)
-                try:
-                    ds = gpg.init_distance_sensor()
-                    if ds is not None:
-                        print('Sensor successfully re-initialized!', flush=True)
-                        consecutive_errors = 0
-                except Exception:
-                    pass
-            elif consecutive_errors > 20:
-                consecutive_errors = 0
-        else:
-            consecutive_errors = 0
-
-        # Heartbeat log every 3 seconds so we can see live distance in logs
+        # Heartbeat log every 3 seconds
         now = time.time()
         if now - last_status_time > 3.0:
             print(f'[Standby] Current distance reading: {dist:.1f} cm', flush=True)
