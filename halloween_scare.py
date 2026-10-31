@@ -8,7 +8,7 @@ RELAY_URL_ON = 'http://127.0.0.1:8088/on'
 RELAY_URL_OFF = 'http://127.0.0.1:8088/off'
 AUDIO_FILE = '/home/pi/witch_laugh_10s.wav'
 AUDIO_DEVICE = 'plughw:2,0'
-TRIGGER_DISTANCE_CM = 150.0  # Detection threshold in cm (~5 feet)
+TRIGGER_DISTANCE_CM = 220.0  # Max sensor detection threshold in cm (~7.2 feet)
 COOLDOWN_SEC = 5.0          # Seconds to wait after scare finishes
 
 def set_light(state: bool):
