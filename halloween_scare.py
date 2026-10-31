@@ -65,13 +65,32 @@ print('  - Duration: 10 Seconds (Witch Laugh + Spotlight)', flush=True)
 print('==================================================', flush=True)
 
 last_status_time = 0
+consecutive_errors = 0
 
 try:
     while True:
         try:
-            dist = ds.read_mm() / 10.0
+            raw_mm = ds.read_mm()
+            dist = raw_mm / 10.0
         except Exception as e:
-            dist = 999.0
+            dist = 0.0
+
+        # Auto-recover if sensor gets into locked I/O state
+        if dist <= 0.0 or dist >= 800.0:
+            consecutive_errors += 1
+            if consecutive_errors == 10:
+                print('[WARN] Distance sensor unresponsive or I/O error. Re-initializing...', flush=True)
+                try:
+                    ds = gpg.init_distance_sensor()
+                    if ds is not None:
+                        print('Sensor successfully re-initialized!', flush=True)
+                        consecutive_errors = 0
+                except Exception:
+                    pass
+            elif consecutive_errors > 20:
+                consecutive_errors = 0
+        else:
+            consecutive_errors = 0
 
         # Heartbeat log every 3 seconds so we can see live distance in logs
         now = time.time()
